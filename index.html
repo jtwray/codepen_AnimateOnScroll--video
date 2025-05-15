@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <link rel="stylesheet" href="">
+</head>
+
+<body>
+
+  <!-- <video
+  id="bgvid"
+  preload="auto"
+  muted
+  playsinline
+  style="position:fixed; top:0; left:0; width:100%; height:100vh; object-fit:cover;"
+  src="https://jtwray.github.io/assets/15200357-uhd_2560_1440_30fps.mp4">
+</video> -->
+  <video src="https://jtwray.github.io/assets/videos/rollypink3d_new.mp4" id="bgvid" class="video" style="position:fixed; top:0; left:0; width:100%; height:100vh; object-fit:cover;" playsinline="true" webkit-playsinline="true" preload="auto" muted="muted"></video>
+  <div id="content" style="height:400vh;">…your text…</div>
+
+  <style>
+    .square {
+      width: 300px;
+      height: 300px;
+      border: solid lime 3px;
+      animation: foo 3s linear both;
+      animation-timeline: scroll(block root);
+    }
+
+    @keyframes foo {
+      from {
+        color: black;
+      }
+
+      to {
+        color: pink;
+      }
+    }
+
+    @keyframes scrub {
+      from {
+        --video-time: 0;
+      }
+
+      to {
+        --video-time: 5;
+        /*       var(
+      --video-duration
+    ); /* You'll need to set --video-duration with JS */
+      }
+    }
+
+    video#scrubVideo {
+      animation-timeline: scroll(root);
+      animation-range: cover;
+      animation-name: scrub;
+      /*   animation-duration: 1s; 
+  This duration doesn't directly control the video time, but is needed for the syntax */
+      animation-timing-function: linear;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .appear {
+      height: 300px;
+      width: 300px;
+      animation: appear linear;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+      animation-fill-mode: both;
+    }
+  </style>
+
+  <script>
+    const vid = document.getElementById("bgvid");
+    let duration = 0;
+    let maxScroll = 0;
+    let targetTime = 0;
+    let smoothTime = 0;
+    const ease = 0.1; // 0<ease<1, tweak for more or less lag
+    // 1) Wait until we know duration & page height
+    window.onload = () => {
+      // .addEventListener("loadedmetadata", () => {
+      duration = vid.duration;
+      maxScroll = document.body.scrollHeight - window.innerHeight;
+      smoothTime = vid.currentTime; // start in sync
+      vid.pause(); // stop native playback
+      // 2) On scroll, set targetTime = fraction * full duration
+      window.addEventListener(
+        "scroll",
+        () => {
+          const pct = Math.min(Math.max(window.scrollY / maxScroll, 0), 1);
+          targetTime = pct * duration; // ← critical multiplication here
+        }, {
+          passive: true
+        }
+      );
+      // 3) Start the LERP loop
+      requestAnimationFrame(lerpUpdate);
+    };
+    // LERP chase loop
+    function lerpUpdate() {
+      smoothTime += (targetTime - smoothTime) * ease;
+      // clamp for safety
+      smoothTime = Math.max(0, Math.min(smoothTime, duration));
+      vid.currentTime = smoothTime;
+      requestAnimationFrame(lerpUpdate);
+    }
+  </script>
+  //
+  <!-- Video is FREE from: https://pixabay.com/videos/abstract-background-ink-water-20072/ -->
+
+</body>
+
+</html>
